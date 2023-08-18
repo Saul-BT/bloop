@@ -120,6 +120,9 @@ async fn update_credentials(app: &Application) {
             if let Ok(Some(ref user)) = username {
                 debug!(?user, "updated user");
                 app.credentials.set_user(user.into()).await;
+                if let Err(err) = app.credentials.store() {
+                    error!(?err, "failed to save user credentials");
+                }
             }
 
             username.is_err()
@@ -128,10 +131,7 @@ async fn update_credentials(app: &Application) {
         };
 
         if expired && app.credentials.remove(&Backend::Github).is_some() {
-            app.config
-                .source
-                .save_credentials(&app.credentials.serialize().await)
-                .unwrap();
+            app.credentials.store().unwrap();
             debug!("github oauth is invalid; credentials removed");
         }
     }
