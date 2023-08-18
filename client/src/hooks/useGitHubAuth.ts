@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { gitHubDeviceLogin, gitHubStatus } from '../services/api';
+import { getConfig, gitHubDeviceLogin } from '../services/api';
 import { copyToClipboard } from '../utils';
 import { UIContext } from '../context/uiContext';
 import { DeviceContext } from '../context/deviceContext';
@@ -63,9 +63,9 @@ export const useGitHubAuth = (
   }, []);
 
   const checkGHAuth = () => {
-    gitHubStatus().then((d) => {
-      setGithubConnected(d.status === 'ok');
-      if (d.status === 'ok') {
+    getConfig().then((d) => {
+      setGithubConnected(!!d.github_user);
+      if (!!d.github_user) {
         handleNext();
       }
     });
